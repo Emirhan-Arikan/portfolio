@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { motion, Variants } from "framer-motion";
 import { Code, Award, Globe, FileText, ArrowUpRight } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 /* ================== ANIMATION ================== */
 
@@ -60,37 +59,15 @@ const pop: Variants = {
 export default function About() {
   const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
-  const [projectCount, setProjectCount] = useState(0);
-  const [certificateCount, setCertificateCount] = useState(0);
+  const projectCount = 3; // Static count
+  const certificateCount = 3; // Static count
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
-
     check();
     window.addEventListener("resize", check);
-
-    fetchStats();
-
     return () => window.removeEventListener("resize", check);
   }, []);
-
-  const fetchStats = async () => {
-    try {
-      const { count: projects } = await supabase
-        .from("projects")
-        .select("*", { count: "exact", head: true });
-
-      const { count: certificates } = await supabase
-        .from("certificates")
-        .select("*", { count: "exact", head: true });
-
-      setProjectCount(projects || 0);
-      setCertificateCount(certificates || 0);
-    } catch {
-      setProjectCount(0);
-      setCertificateCount(0);
-    }
-  };
 
   const scrollToPortfolio = () => {
     const el = document.getElementById("portfolio");

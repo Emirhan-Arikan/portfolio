@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence, Variants } from 'framer-motion'
 import { Upload, Heart, Pin } from 'lucide-react'
-import useComments from '@/hooks/useComments'
 
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
@@ -32,8 +31,19 @@ const itemVariants: Variants = {
 }
 
 export default function CommentsSection() {
-  const { comments, loading, addComment, likeComment } =
-    useComments()
+  // Static comments - backend will handle this later
+  const comments = [
+    {
+      id: 1,
+      name: 'John Doe',
+      comment: 'Great portfolio! Love the design and animations.',
+      likes: 5,
+      is_pinned: false,
+      image_url: null,
+    },
+  ];
+  
+  const loading = false;
 
   const [name, setName] = useState('')
   const [comment, setComment] = useState('')
@@ -52,17 +62,19 @@ export default function CommentsSection() {
 
   const handleSubmit = async () => {
     if (!name.trim() || !comment.trim()) return
-
-    await addComment({
-      name,
-      comment,
-      image,
-    })
-
+    
+    // Backend will handle this
+    alert('Comments will be handled by Django backend')
+    
     setName('')
     setComment('')
     setImage(null)
     setPreview(null)
+  }
+
+  const likeComment = (id: number, currentLikes: number) => {
+    // Backend will handle this
+    console.log('Like comment:', id)
   }
 
   return (
