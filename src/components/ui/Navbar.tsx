@@ -1,20 +1,44 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
+import AuthModal from './AuthModal'
 
 export default function Navbar() {
+  const pathname = usePathname()
+  const router = useRouter()
   const [scrolled, setScrolled] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [open, setOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
   const [mounted, setMounted] = useState(false)
-
-  // 🔥 navbar muncul sekali aja
   const [showNavbar, setShowNavbar] = useState(false)
+
+  // Auth states
+  const [user, setUser] = useState<string | null>(null)
+  const [authModalOpen, setAuthModalOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
+
+    const checkAuth = () => {
+      const storedUsername = localStorage.getItem('portfolio_username')
+      const token = localStorage.getItem('portfolio_token')
+      if (storedUsername && token) {
+        setUser(storedUsername)
+      } else {
+        setUser(null)
+      }
+    }
+
+    const openModal = () => {
+      setAuthModalOpen(true)
+    }
+
+    checkAuth()
+    window.addEventListener('auth-change', checkAuth)
+    window.addEventListener('open-auth-modal', openModal)
 
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768)
@@ -45,12 +69,13 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll)
 
     return () => {
+      window.removeEventListener('auth-change', checkAuth)
+      window.removeEventListener('open-auth-modal', openModal)
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('scroll', handleScroll)
     }
   }, [])
 
-  // 🔥 navbar animasi cuma pas refresh
   useEffect(() => {
     const navbarPlayed = sessionStorage.getItem('navbarPlayed')
 
@@ -68,6 +93,13 @@ export default function Navbar() {
   }, [])
 
   if (!mounted) return null
+
+  const handleLogout = () => {
+    localStorage.removeItem('portfolio_token')
+    localStorage.removeItem('portfolio_username')
+    window.dispatchEvent(new Event('auth-change'))
+    setOpen(false)
+  }
 
   const smoothScrollTo = (
     e: React.MouseEvent<HTMLAnchorElement>,
@@ -116,160 +148,294 @@ export default function Navbar() {
   }
 
   const navItems = [
-    { label: 'Home', id: 'home' },
-    { label: 'About', id: 'about' },
-    { label: 'Portfolio', id: 'portfolio' },
-    { label: 'Contact', id: 'contact' },
+    { label: 'Home', id: 'home', href: '/' },
+    { label: 'About', id: 'about', href: '/#about' },
+    { label: 'Portfolio', id: 'portfolio', href: '/#portfolio' },
+    { label: 'Blog', id: 'blog', href: '/blog' },
+    { label: 'Contact', id: 'contact', href: '/#contact' },
   ]
 
   return (
-    <motion.nav
-      initial={{ opacity: 0, y: -40 }}
-      animate={{
-        opacity: showNavbar ? 1 : 0,
-        y: showNavbar ? 0 : -40,
-      }}
-      transition={{
-        duration: 0.8,
-        ease: [0.22, 1, 0.36, 1],
-      }}
-      style={{
-        position: 'fixed',
-        top: 20,
-        left: isMobile ? 20 : 60,
-        right: isMobile ? 20 : 60,
-        zIndex: 50,
-      }}
-    >
-      <div
+    <>
+      <motion.nav
+        initial={{ opacity: 0, y: -40 }}
+        animate={{
+          opacity: showNavbar ? 1 : 0,
+          y: showNavbar ? 0 : -40,
+        }}
+        transition={{
+          duration: 0.8,
+          ease: [0.22, 1, 0.36, 1],
+        }}
         style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '10px 30px',
-          width: '100%',
-          borderRadius: 999,
-          backgroundColor: scrolled
-            ? 'rgba(13,13,13,0.85)'
-            : 'rgba(13,13,13,0.5)',
-          backdropFilter: 'blur(12px)',
-          border: '1px solid var(--border)',
+          position: 'fixed',
+          top: 20,
+          left: isMobile ? 20 : 60,
+          right: isMobile ? 20 : 60,
+          zIndex: 50,
         }}
       >
-        <span
+        <div
           style={{
-            fontFamily: "'DM Mono', monospace",
-            fontSize: 13,
-            color: 'var(--text-secondary)',
-            letterSpacing: '0.1em',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '10px 30px',
+            width: '100%',
+            borderRadius: 999,
+            backgroundColor: scrolled
+              ? 'rgba(13,13,13,0.92)'
+              : 'rgba(13,13,13,0.5)',
+            backdropFilter: 'blur(12px)',
+            border: '1px solid var(--border)',
           }}
         >
-          emirhanarikan.com.tr
-        </span>
+          <span
+            style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: 13,
+              color: 'var(--text-secondary)',
+              letterSpacing: '0.1em',
+            }}
+          >
+            emirhanarikan.com.tr
+          </span>
 
-        {!isMobile && (
-          <div style={{ display: 'flex', gap: 40 }}>
+          {!isMobile && (
+            <div style={{ display: 'flex', gap: 30, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 30 }}>
+                {navItems.map((item) => {
+                  const isActive = activeSection === item.id && pathname === '/'
+                  const isBlog = item.id === 'blog'
+                  const isHome = pathname === '/'
+
+                  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+                    if (isBlog) {
+                      e.preventDefault()
+                      router.push('/blog')
+                      setOpen(false)
+                    } else if (!isHome) {
+                      setOpen(false)
+                    } else {
+                      smoothScrollTo(e, `#${item.id}`)
+                    }
+                  }
+
+                  return (
+                    <a
+                      key={item.id}
+                      href={isBlog ? '/blog' : (isHome ? `#${item.id}` : `/${item.id === 'home' ? '' : '#' + item.id}`)}
+                      onClick={handleClick}
+                      style={{
+                        position: 'relative',
+                        fontFamily: "'DM Mono', monospace",
+                        fontSize: 13,
+                        color: isActive
+                          ? 'var(--text-primary)'
+                          : 'var(--text-secondary)',
+                        textDecoration: 'none',
+                        letterSpacing: '0.08em',
+                        cursor: 'pointer',
+                        paddingBottom: 4,
+                        transition: '0.25s ease',
+                      }}
+                      className="hover:text-white"
+                    >
+                      {item.label}
+
+                      {!isBlog && (
+                        <span
+                          style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            left: 0,
+                            width: '100%',
+                            height: 1,
+                            background: 'white',
+                            transform: isActive
+                              ? 'scaleX(1)'
+                              : 'scaleX(0)',
+                            transformOrigin: 'left',
+                            transition: 'transform 0.25s ease',
+                          }}
+                        />
+                      )}
+                    </a>
+                  )
+                })}
+              </div>
+
+              {/* Desktop Auth Button */}
+              <div style={{ borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: 20, display: 'flex', alignItems: 'center' }}>
+                {user ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
+                    <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>
+                      {user}
+                    </span>
+                    <button
+                      onClick={handleLogout}
+                      style={{
+                        fontFamily: "'DM Mono', monospace",
+                        fontSize: 11,
+                        color: 'white',
+                        background: 'rgba(255,255,255,0.06)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        padding: '6px 12px',
+                        borderRadius: 999,
+                        cursor: 'pointer',
+                        transition: '0.2s',
+                      }}
+                      className="hover:bg-white hover:text-black"
+                    >
+                      Çıkış Yap
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setAuthModalOpen(true)}
+                    style={{
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: 11,
+                      color: 'black',
+                      background: 'white',
+                      border: '1px solid white',
+                      padding: '6px 14px',
+                      borderRadius: 999,
+                      cursor: 'pointer',
+                      transition: '0.2s',
+                      fontWeight: 600,
+                    }}
+                    className="hover:bg-transparent hover:text-white"
+                  >
+                    Giriş Yap
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {isMobile && (
+            <div
+              onClick={() => setOpen(!open)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4,
+                cursor: 'pointer',
+              }}
+            >
+              <span style={{ width: 20, height: 2, background: 'white' }} />
+              <span style={{ width: 20, height: 2, background: 'white' }} />
+              <span style={{ width: 20, height: 2, background: 'white' }} />
+            </div>
+          )}
+        </div>
+
+        {isMobile && open && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            style={{
+              marginTop: 10,
+              borderRadius: 16,
+              background: 'rgba(13,13,13,0.92)',
+              border: '1px solid var(--border)',
+              backdropFilter: 'blur(12px)',
+              padding: 20,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 18,
+            }}
+          >
             {navItems.map((item) => {
-              const isActive = activeSection === item.id
+              const isActive = activeSection === item.id && pathname === '/'
+              const isBlog = item.id === 'blog'
+              const isHome = pathname === '/'
+
+              const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+                if (isBlog) {
+                  e.preventDefault()
+                  router.push('/blog')
+                  setOpen(false)
+                } else if (!isHome) {
+                  setOpen(false)
+                } else {
+                  smoothScrollTo(e, `#${item.id}`)
+                }
+              }
 
               return (
                 <a
                   key={item.id}
-                  href={`#${item.id}`}
-                  onClick={(e) => smoothScrollTo(e, `#${item.id}`)}
+                  href={isBlog ? '/blog' : (isHome ? `#${item.id}` : `/${item.id === 'home' ? '' : '#' + item.id}`)}
+                  onClick={handleClick}
                   style={{
-                    position: 'relative',
                     fontFamily: "'DM Mono', monospace",
                     fontSize: 13,
                     color: isActive
                       ? 'var(--text-primary)'
                       : 'var(--text-secondary)',
                     textDecoration: 'none',
-                    letterSpacing: '0.08em',
-                    cursor: 'pointer',
-                    paddingBottom: 4,
-                    transition: '0.25s ease',
                   }}
                 >
                   {item.label}
-
-                  <span
-                    style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      width: '100%',
-                      height: 1,
-                      background: 'white',
-                      transform: isActive
-                        ? 'scaleX(1)'
-                        : 'scaleX(0)',
-                      transformOrigin: 'left',
-                      transition: 'transform 0.25s ease',
-                    }}
-                  />
                 </a>
               )
             })}
-          </div>
+
+            {/* Mobile Auth Button */}
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 15, marginTop: 5 }}>
+              {user ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontFamily: "'DM Mono', monospace", fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+                    Hoş geldin, {user}
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    style={{
+                      fontFamily: "'DM Mono', monospace",
+                      fontSize: 11,
+                      color: 'white',
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      padding: '6px 12px',
+                      borderRadius: 999,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Çıkış Yap
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setAuthModalOpen(true)
+                    setOpen(false)
+                  }}
+                  style={{
+                    width: '100%',
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: 12,
+                    color: 'black',
+                    background: 'white',
+                    border: '1px solid white',
+                    padding: '10px',
+                    borderRadius: 12,
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                  }}
+                >
+                  Giriş Yap
+                </button>
+              )}
+            </div>
+          </motion.div>
         )}
+      </motion.nav>
 
-        {isMobile && (
-          <div
-            onClick={() => setOpen(!open)}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 4,
-              cursor: 'pointer',
-            }}
-          >
-            <span style={{ width: 20, height: 2, background: 'white' }} />
-            <span style={{ width: 20, height: 2, background: 'white' }} />
-            <span style={{ width: 20, height: 2, background: 'white' }} />
-          </div>
-        )}
-      </div>
-
-      {isMobile && open && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          style={{
-            marginTop: 10,
-            borderRadius: 16,
-            background: 'rgba(13,13,13,0.9)',
-            border: '1px solid var(--border)',
-            backdropFilter: 'blur(12px)',
-            padding: 20,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 18,
-          }}
-        >
-          {navItems.map((item) => {
-            const isActive = activeSection === item.id
-
-            return (
-              <a
-                key={item.id}
-                href={`#${item.id}`}
-                onClick={(e) => smoothScrollTo(e, `#${item.id}`)}
-                style={{
-                  fontFamily: "'DM Mono', monospace",
-                  fontSize: 13,
-                  color: isActive
-                    ? 'var(--text-primary)'
-                    : 'var(--text-secondary)',
-                }}
-              >
-                {item.label}
-              </a>
-            )
-          })}
-        </motion.div>
-      )}
-    </motion.nav>
+      {/* Authentication Modal */}
+      <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+    </>
   )
 }

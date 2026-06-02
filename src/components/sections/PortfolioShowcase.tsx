@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X,
@@ -16,64 +16,89 @@ const smoothEase: [number, number, number, number] = [
   1,
 ]
 
+// Fallback static data in case backend is unreachable
+const STATIC_PROJECTS = [
+  {
+    id: 1,
+    title: 'RAG Tabanlı Tarım & Hayvancılık Chatbotu',
+    description: 'Tarım ve hayvancılık sektörü için Retrieval-Augmented Generation (RAG) teknolojisi kullanılarak geliştirilmiş akıllı chatbot. Çiftçilere ve hayvancılara anlık bilgi desteği sağlar.',
+    image_url: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&q=80',
+    live_url: 'https://github.com/Emirhan-Arikan',
+  },
+  {
+    id: 2,
+    title: 'XAI ile Deprem Büyüklüğü Sınıflandırması',
+    description: 'Explainable AI (XAI) teknikleri kullanılarak deprem büyüklüklerinin sınıflandırılması ve tahmin sonuçlarının açıklanabilir hale getirilmesi projesi.',
+    image_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80',
+    live_url: 'https://github.com/Emirhan-Arikan',
+  },
+  {
+    id: 3,
+    title: 'Machine Learning Portfolio',
+    description: 'PyTorch ve Scikit-learn kullanılarak geliştirilmiş çeşitli makine öğrenmesi projeleri. Veri analizi, model eğitimi ve tahmin sistemleri içerir.',
+    image_url: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&q=80',
+    live_url: 'https://github.com/Emirhan-Arikan',
+  },
+];
+
+const STATIC_CERTIFICATES = [
+  {
+    id: 1,
+    title: 'Python Programming Certificate',
+    image_url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80',
+  },
+  {
+    id: 2,
+    title: 'Machine Learning Specialization',
+    image_url: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=800&q=80',
+  },
+  {
+    id: 3,
+    title: 'Deep Learning with PyTorch',
+    image_url: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80',
+  },
+];
+
+const STATIC_TECH_STACK = [
+  { id: 1, name: 'Python', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
+  { id: 2, name: 'C', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg' },
+  { id: 3, name: 'C++', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg' },
+  { id: 4, name: 'Django', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg' },
+  { id: 5, name: 'PyTorch', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg' },
+  { id: 6, name: 'Scikit-learn', logo_url: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Scikit_learn_logo_small.svg' },
+  { id: 7, name: 'TensorFlow', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg' },
+  { id: 8, name: 'NumPy', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg' },
+  { id: 9, name: 'Pandas', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg' },
+  { id: 10, name: 'Git', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg' },
+];
+
 export default function PortfolioShowcase() {
-  // Static data - no database needed
-  const projects = [
-    {
-      id: 1,
-      title: 'RAG Tabanlı Tarım & Hayvancılık Chatbotu',
-      description: 'Tarım ve hayvancılık sektörü için Retrieval-Augmented Generation (RAG) teknolojisi kullanılarak geliştirilmiş akıllı chatbot. Çiftçilere ve hayvancılara anlık bilgi desteği sağlar.',
-      image_url: 'https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&q=80',
-      live_url: 'https://github.com/Emirhan-Arikan',
-    },
-    {
-      id: 2,
-      title: 'XAI ile Deprem Büyüklüğü Sınıflandırması',
-      description: 'Explainable AI (XAI) teknikleri kullanılarak deprem büyüklüklerinin sınıflandırılması ve tahmin sonuçlarının açıklanabilir hale getirilmesi projesi.',
-      image_url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80',
-      live_url: 'https://github.com/Emirhan-Arikan',
-    },
-    {
-      id: 3,
-      title: 'Machine Learning Portfolio',
-      description: 'PyTorch ve Scikit-learn kullanılarak geliştirilmiş çeşitli makine öğrenmesi projeleri. Veri analizi, model eğitimi ve tahmin sistemleri içerir.',
-      image_url: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=800&q=80',
-      live_url: 'https://github.com/Emirhan-Arikan',
-    },
-  ];
+  const [projects, setProjects] = useState(STATIC_PROJECTS)
+  const [certificates, setCertificates] = useState(STATIC_CERTIFICATES)
+  const [techStacks, setTechStacks] = useState(STATIC_TECH_STACK)
+  const [loading, setLoading] = useState(false)
 
-  const certificates = [
-    {
-      id: 1,
-      title: 'Python Programming Certificate',
-      image_url: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&q=80',
-    },
-    {
-      id: 2,
-      title: 'Machine Learning Specialization',
-      image_url: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?w=800&q=80',
-    },
-    {
-      id: 3,
-      title: 'Deep Learning with PyTorch',
-      image_url: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&q=80',
-    },
-  ];
-
-  const techStacks = [
-    { id: 1, name: 'Python', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
-    { id: 2, name: 'C', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/c/c-original.svg' },
-    { id: 3, name: 'C++', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg' },
-    { id: 4, name: 'Django', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg' },
-    { id: 5, name: 'PyTorch', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pytorch/pytorch-original.svg' },
-    { id: 6, name: 'Scikit-learn', logo_url: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Scikit_learn_logo_small.svg' },
-    { id: 7, name: 'TensorFlow', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg' },
-    { id: 8, name: 'NumPy', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/numpy/numpy-original.svg' },
-    { id: 9, name: 'Pandas', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/pandas/pandas-original.svg' },
-    { id: 10, name: 'Git', logo_url: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg' },
-  ];
-
-  const loading = false;
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true)
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+      try {
+        const [projectsRes, certsRes, techRes] = await Promise.all([
+          fetch(`${apiBase}/api/projects/`).then(r => r.json()),
+          fetch(`${apiBase}/api/certificates/`).then(r => r.json()),
+          fetch(`${apiBase}/api/techstack/`).then(r => r.json())
+        ])
+        if (Array.isArray(projectsRes) && projectsRes.length > 0) setProjects(projectsRes)
+        if (Array.isArray(certsRes) && certsRes.length > 0) setCertificates(certsRes)
+        if (Array.isArray(techRes) && techRes.length > 0) setTechStacks(techRes)
+      } catch (err) {
+        console.warn('Backend connection failed, using static fallback data.', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
 
   const [activeTab, setActiveTab] =
     useState('projects')

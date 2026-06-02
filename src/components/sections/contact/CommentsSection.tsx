@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence, Variants } from 'framer-motion'
 import { Upload, Heart, Pin } from 'lucide-react'
 
@@ -30,25 +30,78 @@ const itemVariants: Variants = {
   },
 }
 
-export default function CommentsSection() {
-  // Static comments - backend will handle this later
-  const comments = [
-    {
-      id: 1,
-      name: 'John Doe',
-      comment: 'Great portfolio! Love the design and animations.',
-      likes: 5,
-      is_pinned: false,
-      image_url: null,
-    },
-  ];
-  
-  const loading = false;
+interface CommentItem {
+  id: number
+  name: string
+  comment: string
+  likes: number
+  is_pinned: boolean
+  image: string | null
+  image_url?: string | null
+  created_at?: string
+}
 
-  const [name, setName] = useState('')
+const FALLBACK_COMMENTS: CommentItem[] = [
+  {
+    id: 1,
+    name: 'John Doe',
+    comment: 'Great portfolio! Love the design and animations.',
+    likes: 5,
+    is_pinned: true,
+    image: null,
+  },
+]
+
+export default function CommentsSection() {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+  const [comments, setComments] = useState<CommentItem[]>(FALLBACK_COMMENTS)
+  const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+
+  // Auth States
+  const [user, setUser] = useState<string | null>(null)
+  const [token, setToken] = useState<string | null>(null)
+
   const [comment, setComment] = useState('')
   const [image, setImage] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
+
+  const fetchComments = async () => {
+    setLoading(true)
+    try {
+      const res = await fetch(`${apiBase}/api/comments/`)
+      if (res.ok) {
+        const data = await res.json()
+        if (Array.isArray(data)) {
+          setComments(data)
+        }
+      }
+    } catch (err) {
+      console.warn('Could not fetch comments from backend. Using fallback.', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchComments()
+
+    const checkAuth = () => {
+      const storedUsername = localStorage.getItem('portfolio_username')
+      const storedToken = localStorage.getItem('portfolio_token')
+      if (storedUsername && storedToken) {
+        setUser(storedUsername)
+        setToken(storedToken)
+      } else {
+        setUser(null)
+        setToken(null)
+      }
+    }
+
+    checkAuth()
+    window.addEventListener('auth-change', checkAuth)
+    return () => window.removeEventListener('auth-change', checkAuth)
+  }, [])
 
   const handleImage = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -61,20 +114,72 @@ export default function CommentsSection() {
   }
 
   const handleSubmit = async () => {
-    if (!name.trim() || !comment.trim()) return
-    
-    // Backend will handle this
-    alert('Comments will be handled by Django backend')
-    
-    setName('')
-    setComment('')
-    setImage(null)
-    setPreview(null)
+    if (!comment.trim()) return
+    if (!token) {
+      window.dispatchEvent(new Event('open-auth-modal'))
+      return
+    }
+
+    setSubmitting(true)
+    const formData = new FormData()
+    formData.append('comment', comment.trim())
+    if (image) {
+      formData.append('image', image)
+    }
+
+    try {
+      const res = await fetch(`${apiBase}/api/comments/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${token}`
+        },
+        body: formData,
+      })
+
+      if (res.ok) {
+        setComment('')
+        setImage(null)
+        setPreview(null)
+        fetchComments() // reload list
+      } else {
+        alert('Failed to post comment.')
+      }
+    } catch (err) {
+      alert('Network error. Is backend server running?')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
-  const likeComment = (id: number, currentLikes: number) => {
-    // Backend will handle this
-    console.log('Like comment:', id)
+  const likeComment = async (id: number, currentLikes: number) => {
+    // Optimistic UI update
+    setComments(prev =>
+      prev.map(c => (c.id === id ? { ...c, likes: c.likes + 1 } : c))
+    )
+
+    const headers: HeadersInit = {}
+    if (token) {
+      headers['Authorization'] = `Token ${token}`
+    }
+
+    try {
+      const res = await fetch(`${apiBase}/api/comments/${id}/like/`, {
+        method: 'POST',
+        headers: headers
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setComments(prev =>
+          prev.map(c => (c.id === id ? { ...c, likes: data.likes } : c))
+        )
+      }
+    } catch (err) {
+      console.error('Error liking comment', err)
+      // revert if failed
+      setComments(prev =>
+        prev.map(c => (c.id === id ? { ...c, likes: currentLikes } : c))
+      )
+    }
   }
 
   return (
@@ -86,86 +191,95 @@ export default function CommentsSection() {
         ease: smoothEase,
       }}
       viewport={{ once: false, amount: 0.2 }}
-      className="rounded-[28px] md:rounded-[34px] border border-white/10 bg-white/5 backdrop-blur-xl p-5 md:p-8 h-full"
+      className="rounded-[28px] md:rounded-[34px] border border-white/10 bg-white/5 backdrop-blur-xl p-5 md:p-8 h-full flex flex-col"
     >
       {/* HEADER */}
       <div className="mb-5 md:mb-6">
         <h3 className="text-xl md:text-2xl font-semibold mb-1">
-          Comments
+          Yorumlar
         </h3>
 
         <p className="text-xs md:text-sm text-white/40">
-          Leave your thoughts here
+          Düşüncelerinizi buraya bırakın
         </p>
       </div>
 
       {/* FORM */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: false }}
-        className="space-y-3 md:space-y-4 mb-5 md:mb-6"
-      >
-        <motion.input
-          variants={itemVariants}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Your Name"
-          className="w-full rounded-2xl border border-white/15 bg-black/20 px-4 py-3 md:py-4 outline-none focus:border-white"
-        />
-
-        <motion.textarea
-          variants={itemVariants}
-          rows={4}
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          placeholder="Your Comment"
-          className="w-full rounded-2xl border border-white/15 bg-black/20 px-4 py-3 md:py-4 outline-none resize-none focus:border-white"
-        />
-
-        <motion.label
-          variants={itemVariants}
-          className="rounded-2xl border border-dashed border-white/15 bg-black/20 p-3 md:p-4 flex items-center gap-3 cursor-pointer"
+      {user ? (
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: false }}
+          className="space-y-3 md:space-y-4 mb-5 md:mb-6"
         >
-          <Upload size={16} />
+          <div className="flex items-center gap-2 text-xs text-white/40 px-1">
+            <span>Yorum yazan:</span>
+            <span className="font-semibold text-white">{user}</span>
+          </div>
 
-          <span className="text-xs md:text-sm text-white/65">
-            Upload Image
-          </span>
-
-          <input
-            hidden
-            type="file"
-            accept="image/*"
-            onChange={handleImage}
+          <motion.textarea
+            variants={itemVariants}
+            rows={4}
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Yorumunuzu buraya yazın..."
+            className="w-full rounded-2xl border border-white/15 bg-black/20 px-4 py-3 md:py-4 outline-none resize-none focus:border-white text-sm"
           />
-        </motion.label>
 
-        <AnimatePresence>
-          {preview && (
-            <motion.img
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              src={preview}
-              alt="Preview"
-              className="rounded-2xl h-36 md:h-44 w-full object-cover border border-white/10"
+          <motion.label
+            variants={itemVariants}
+            className="rounded-2xl border border-dashed border-white/15 bg-black/20 p-3 md:p-4 flex items-center gap-3 cursor-pointer"
+          >
+            <Upload size={16} />
+
+            <span className="text-xs md:text-sm text-white/65">
+              {image ? image.name : 'Görsel Yükle (İsteğe Bağlı)'}
+            </span>
+
+            <input
+              hidden
+              type="file"
+              accept="image/*"
+              onChange={handleImage}
             />
-          )}
-        </AnimatePresence>
+          </motion.label>
 
-        <motion.button
-          variants={itemVariants}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full rounded-2xl py-3 md:py-4 bg-white/10 border border-white/10 transition-all"
-        >
-          {loading ? 'Posting...' : 'Post Comment'}
-        </motion.button>
-      </motion.div>
+          <AnimatePresence>
+            {preview && (
+              <motion.img
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                src={preview}
+                alt="Preview"
+                className="rounded-2xl h-36 md:h-44 w-full object-cover border border-white/10"
+              />
+            )}
+          </AnimatePresence>
+
+          <motion.button
+            variants={itemVariants}
+            whileHover={{ scale: submitting ? 1 : 1.02 }}
+            whileTap={{ scale: submitting ? 1 : 0.98 }}
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="w-full rounded-2xl py-3 md:py-4 bg-white/10 border border-white/10 transition-all cursor-pointer text-sm font-semibold"
+          >
+            {submitting ? 'Gönderiliyor...' : 'Yorum Yap'}
+          </motion.button>
+        </motion.div>
+      ) : (
+        <div className="rounded-2xl border border-white/10 bg-black/20 p-6 mb-6 text-center space-y-4">
+          <p className="text-sm text-white/50">Yorum yazmak için lütfen giriş yapın.</p>
+          <button
+            onClick={() => window.dispatchEvent(new Event('open-auth-modal'))}
+            className="px-6 py-3 rounded-xl bg-white text-black font-semibold text-xs hover:bg-white/90 transition cursor-pointer"
+          >
+            Giriş Yap / Kayıt Ol
+          </button>
+        </div>
+      )}
 
       {/* COMMENTS LIST */}
       <motion.div
@@ -173,7 +287,7 @@ export default function CommentsSection() {
         initial="hidden"
         whileInView="show"
         viewport={{ once: false }}
-        className="rounded-[24px] md:rounded-[28px] border border-white/10 bg-black/20 p-3 h-[320px] md:h-[420px] overflow-y-auto custom-scroll"
+        className="rounded-[24px] md:rounded-[28px] border border-white/10 bg-black/20 p-3 h-[320px] md:h-[420px] overflow-y-auto custom-scroll flex-1"
       >
         <div className="space-y-3">
           <AnimatePresence initial={false}>
@@ -226,7 +340,7 @@ export default function CommentsSection() {
                       {item.is_pinned && (
                         <div className="flex items-center gap-1 px-2 py-[3px] rounded-full bg-purple-500/15 border border-purple-500/20 text-[10px] text-purple-300">
                           <Pin size={10} />
-                          PINNED
+                          SABİTLENDİ
                         </div>
                       )}
                     </div>
@@ -235,9 +349,9 @@ export default function CommentsSection() {
                       {item.comment}
                     </p>
 
-                    {item.image_url && (
+                    {(item.image || item.image_url) && (
                       <img
-                        src={item.image_url}
+                        src={item.image || item.image_url || undefined}
                         alt="Comment"
                         className="mt-3 rounded-xl w-full max-h-48 md:max-h-56 object-cover border border-white/10"
                       />
@@ -248,7 +362,7 @@ export default function CommentsSection() {
                     onClick={() =>
                       likeComment(item.id, item.likes)
                     }
-                    className="flex items-center gap-1 text-[11px] text-white/40 hover:text-white transition-colors"
+                    className="flex items-center gap-1 text-[11px] text-white/40 hover:text-white transition-colors cursor-pointer"
                   >
                     <Heart size={13} />
                     {item.likes || 0}

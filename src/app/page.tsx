@@ -8,6 +8,7 @@ import Navbar from '@/components/ui/Navbar'
 import Hero from '@/components/sections/Hero'
 import About from '@/components/sections/About'
 import PortfolioShowcase from '@/components/sections/PortfolioShowcase'
+import BlogShowcase from '@/components/sections/BlogShowcase'
 import ContactSection from '@/components/sections/contact/ContactSection'
 import WelcomeScreen from '@/components/WelcomeScreen'
 import SocialIcons from '@/components/SocialIcons'
@@ -78,6 +79,7 @@ useEffect(() => {
         <Hero showApp={showApp} />
         <About />
         <PortfolioShowcase />
+        <BlogShowcase />
         <ContactSection />
       </div>
 
@@ -110,4 +112,4 @@ useEffect(() => {
       </AnimatePresence>
     </main>
   )
-}
+}
