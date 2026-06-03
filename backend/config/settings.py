@@ -156,3 +156,19 @@ REST_FRAMEWORK = {
     ],
 }
 
+# Email Configuration
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Emirhan Arikan <noreply@emirhanarikan.com.tr>')
+
+# OAuth Configurations (Google & GitHub)
+GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID', 'MOCK_GITHUB_CLIENT_ID')
+GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET', 'MOCK_GITHUB_CLIENT_SECRET')
+
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID', 'MOCK_GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET', 'MOCK_GOOGLE_CLIENT_SECRET')
+
