@@ -170,4 +170,20 @@ class Command(BaseCommand):
             )
             self.stdout.write(self.style.SUCCESS('Seeded default comment.'))
 
+        # Reset database sequences (crucial for PostgreSQL when seeding explicit IDs)
+        from django.db import connection
+        if connection.vendor == 'postgresql':
+            self.stdout.write('Resetting PostgreSQL sequences...')
+            from django.apps import apps
+            api_app = apps.get_app_config('api')
+            blog_app = apps.get_app_config('blog')
+            
+            sequence_sql = connection.ops.sequence_reset_sql(self.style, api_app.models.values())
+            sequence_sql += connection.ops.sequence_reset_sql(self.style, blog_app.models.values())
+            
+            with connection.cursor() as cursor:
+                for sql in sequence_sql:
+                    cursor.execute(sql)
+            self.stdout.write(self.style.SUCCESS('Successfully reset database sequences.'))
+
         self.stdout.write(self.style.SUCCESS('Database seeding finished successfully!'))
