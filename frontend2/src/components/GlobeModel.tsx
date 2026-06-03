@@ -43,4 +43,4 @@ export default function GlobeModel() {
   );
 }
 
-useGLTF.preload("/earth_globe.glb");
+// useGLTF.preload("/earth_globe.glb");
