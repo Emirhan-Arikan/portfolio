@@ -39,6 +39,39 @@ class ContactMessageViewSet(viewsets.ModelViewSet):
     serializer_class = ContactMessageSerializer
     permission_classes = [ContactMessagePermission]
 
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        
+        # Send email notification to admin
+        try:
+            from django.core.mail import send_mail
+            from django.conf import settings
+            import logging
+            
+            logger = logging.getLogger(__name__)
+            recipient = getattr(settings, 'CONTACT_RECIPIENT_EMAIL', settings.DEFAULT_FROM_EMAIL)
+            
+            subject = f"Yeni İletişim Mesajı: {instance.name}"
+            message = (
+                f"Siteniz üzerinden yeni bir iletişim mesajı gönderildi:\n\n"
+                f"Gönderen: {instance.name}\n"
+                f"E-posta: {instance.email}\n\n"
+                f"Mesaj:\n{instance.message}\n"
+            )
+            
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [recipient],
+                fail_silently=False,
+            )
+            logger.info(f"Contact email notification sent successfully to {recipient}.")
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to send contact email notification: {e}")
+
 class CommentPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if view.action in ['list', 'retrieve', 'like']:

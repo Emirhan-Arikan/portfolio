@@ -48,7 +48,7 @@ function GithubCallbackContent() {
         }
       } catch (err) {
         setStatus('error')
-        setMessage('Backend sunucu bağlantı hatası.')
+        setMessage('bağlanılamadı')
       }
     }
 

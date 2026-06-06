@@ -164,6 +164,7 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'Emirhan Arikan <noreply@emirhanarikan.com.tr>')
+CONTACT_RECIPIENT_EMAIL = os.environ.get('CONTACT_RECIPIENT_EMAIL', 'contact@emirhanarikan.com.tr')
 
 # OAuth Configurations (Google & GitHub)
 GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID', 'MOCK_GITHUB_CLIENT_ID')

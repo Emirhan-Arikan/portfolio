@@ -1,7 +1,7 @@
 'use client';
 import './index.css';
 import * as THREE from 'three';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Suspense } from 'react';
 import { Canvas, extend, useThree, useFrame } from '@react-three/fiber';
 import {
   useGLTF,
@@ -62,7 +62,9 @@ export default function App() {
       >
         <ambientLight intensity={Math.PI} />
 
-        <Scene isMobile={isMobile} />
+        <Suspense fallback={null}>
+          <Scene isMobile={isMobile} />
+        </Suspense>
 
         <Environment blur={0.75}>
           <Lightformer

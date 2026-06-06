@@ -97,14 +97,14 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         if (activeTab === 'login') {
           setError('Giriş yapılamadı')
         } else {
-          setError(data.error || 'Bir hata oluştu. Lütfen bilgilerinizi kontrol edin.')
+          setError('Kayıt olunamadı')
         }
       }
     } catch (err) {
       if (activeTab === 'login') {
         setError('Giriş yapılamadı')
       } else {
-        setError('Sunucu bağlantı hatası. Backend aktif mi?')
+        setError('Kayıt olunamadı')
       }
     } finally {
       setLoading(false)
@@ -291,18 +291,6 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     <div className="space-y-1">
                       <div className="flex justify-between items-center">
                         <label className="text-xs text-white/50">Şifre</label>
-                        {activeTab === 'login' && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveTab('forgot-password')
-                              setError('')
-                            }}
-                            className="text-[10px] text-white/40 hover:text-white transition cursor-pointer"
-                          >
-                            Şifremi Unuttum
-                          </button>
-                        )}
                       </div>
                       <div className="relative">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={16} />
@@ -315,6 +303,20 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
                           className="w-full rounded-2xl border border-white/15 bg-white/[0.03] pl-12 pr-4 py-4 outline-none transition duration-200 focus:border-white focus:ring-1 focus:ring-white/40 text-sm"
                         />
                       </div>
+                      {activeTab === 'login' && (
+                        <div className="flex justify-end pt-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveTab('forgot-password')
+                              setError('')
+                            }}
+                            className="text-[11px] text-white/40 hover:text-white transition cursor-pointer"
+                          >
+                            Şifremi Unuttum
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </>
                 )}
