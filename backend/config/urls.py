@@ -18,9 +18,22 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
+import datetime
+
+def health_check(request):
+    """Simple health-check endpoint to verify backend is reachable."""
+    return JsonResponse({
+        'status': 'ok',
+        'timestamp': datetime.datetime.utcnow().isoformat(),
+        'cors_allow_all': getattr(settings, 'CORS_ALLOW_ALL_ORIGINS', False),
+        'debug': settings.DEBUG,
+        'request_origin': request.headers.get('Origin', 'no-origin'),
+    })
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/health/', health_check, name='health_check'),
     path('api/', include('api.urls')),
     path('api/', include('blog.urls')),
 ]

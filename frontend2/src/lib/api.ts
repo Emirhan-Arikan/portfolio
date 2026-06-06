@@ -14,3 +14,8 @@ if (rawApiBase.startsWith('http://') && rawApiBase.includes('onrender.com')) {
 
 export const apiBase = rawApiBase.replace(/\/+$/, '');
 
+// Debug: log the API base URL so you can verify it in the browser console
+if (typeof window !== 'undefined') {
+  console.log('[API] Base URL:', apiBase);
+  console.log('[API] NEXT_PUBLIC_API_URL env:', process.env.NEXT_PUBLIC_API_URL);
+}

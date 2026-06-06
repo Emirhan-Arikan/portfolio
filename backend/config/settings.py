@@ -145,14 +145,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CORS Settings
-# Allow credentials (cookies/auth headers) from specific origins
-_cors_origins_raw = os.environ.get(
-    'CORS_ALLOWED_ORIGINS',
-    'http://localhost:3000,https://emirhanarikan.com.tr,https://www.emirhanarikan.com.tr'
-)
-CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_origins_raw.split(',') if o.strip()]
-CORS_ALLOW_ALL_ORIGINS = False
+# CORS Settings — allow all origins so backend is reachable from any frontend deployment
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 

@@ -82,7 +82,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         body: JSON.stringify(bodyData),
       })
 
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
 
       if (res.ok) {
         localStorage.setItem('portfolio_token', data.token)
@@ -95,21 +95,18 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
         setPassword('')
         onClose()
       } else {
-        if (activeTab === 'login') {
-          setError('Giriş yapılamadı')
-        } else {
-          setError('Kayıt olunamadı')
-        }
+        // Show real backend error message + HTTP status
+        const backendMsg = data?.error || data?.detail || data?.non_field_errors?.[0] || JSON.stringify(data)
+        setError(`Hata ${res.status}: ${backendMsg}`)
       }
-    } catch (err) {
-      if (activeTab === 'login') {
-        setError('Giriş yapılamadı')
-      } else {
-        setError('Kayıt olunamadı')
-      }
+    } catch (err: any) {
+      // Network error (CORS, wrong URL, server down, etc.)
+      console.error('[Auth] Fetch error:', err)
+      setError(`Ağ hatası — backend URL: ${apiBase} — ${err?.message || 'Bağlantı kurulamadı'}`)
     } finally {
       setLoading(false)
     }
+
   }
 
   const handleGoogleLogin = () => {

@@ -25,6 +25,9 @@ function GithubCallbackContent() {
     async function exchangeCode() {
       try {
         const redirectUri = `${window.location.origin}/auth/callback/github`
+        console.log('[GitHub OAuth] Sending code to:', `${apiBase}/api/auth/github/`)
+        console.log('[GitHub OAuth] redirect_uri:', redirectUri)
+
         const res = await fetch(`${apiBase}/api/auth/github/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -37,7 +40,7 @@ function GithubCallbackContent() {
           data = await res.json()
         } else {
           const text = await res.text()
-          throw new Error(text || 'Sunucu boş veya geçersiz yanıt döndürdü.')
+          throw new Error(`Sunucu JSON döndürmedi (${res.status}): ${text.slice(0, 200)}`)
         }
 
         if (res.ok) {
@@ -52,15 +55,17 @@ function GithubCallbackContent() {
             router.push('/')
           }, 1500)
         } else {
+          const errMsg = data.error || data.detail || JSON.stringify(data)
           setStatus('error')
-          setMessage(data.error || 'GitHub ile giriş başarısız oldu.')
+          setMessage(`Hata ${res.status}: ${errMsg}`)
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('GitHub auth error:', err)
         setStatus('error')
-        setMessage('bağlanılamadı')
+        setMessage(`Backend bağlantı hatası — ${apiBase} — ${err?.message || 'Bilinmeyen hata'}`)
       }
     }
+
 
     exchangeCode()
   }, [code, apiBase, router])
