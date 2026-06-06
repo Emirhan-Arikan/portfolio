@@ -190,16 +190,37 @@ export default function Navbar() {
             border: '1px solid var(--border)',
           }}
         >
-          <span
-            style={{
-              fontFamily: "'DM Mono', monospace",
-              fontSize: 13,
-              color: 'var(--text-secondary)',
-              letterSpacing: '0.1em',
-            }}
-          >
-            emirhanarikan.com.tr
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
+            <span
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: 13,
+                color: 'var(--text-secondary)',
+                letterSpacing: '0.1em',
+              }}
+            >
+              emirhanarikan.com.tr
+            </span>
+            {!isMobile && (
+              <a
+                href="mailto:info@emirhanarikan.com.tr"
+                style={{
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: 11,
+                  color: 'rgba(255,255,255,0.45)',
+                  textDecoration: 'none',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  padding: '3px 10px',
+                  borderRadius: 999,
+                  backgroundColor: 'rgba(255,255,255,0.01)',
+                  transition: '0.2s',
+                }}
+                className="hover:text-white hover:border-white/20 hover:bg-white/5"
+              >
+                info@emirhanarikan.com.tr
+              </a>
+            )}
+          </div>
 
           {!isMobile && (
             <div style={{ display: 'flex', gap: 30, alignItems: 'center' }}>
@@ -383,6 +404,28 @@ export default function Navbar() {
                 </a>
               )
             })}
+
+            {/* Mobile Mail Link */}
+            <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 15, marginTop: 5 }}>
+              <a
+                href="mailto:info@emirhanarikan.com.tr"
+                style={{
+                  display: 'block',
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: 12,
+                  color: 'rgba(255,255,255,0.5)',
+                  textDecoration: 'none',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  padding: '8px 16px',
+                  borderRadius: 12,
+                  backgroundColor: 'rgba(255,255,255,0.02)',
+                  textAlign: 'center',
+                }}
+                className="hover:text-white"
+              >
+                info@emirhanarikan.com.tr
+              </a>
+            </div>
 
             {/* Mobile Auth Button */}
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 15, marginTop: 5 }}>
