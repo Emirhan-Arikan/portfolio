@@ -9,6 +9,7 @@ from .serializers import BlogPostSerializer
 
 class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []  # CSRF bypass for cross-origin requests
 
     def post(self, request):
         username = request.data.get('username', '').strip()
@@ -31,6 +32,7 @@ class RegisterView(APIView):
 
 class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
+    authentication_classes = []  # CSRF bypass for cross-origin requests
 
     def post(self, request):
         username = request.data.get('username', '').strip()

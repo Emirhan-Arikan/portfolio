@@ -89,9 +89,18 @@ export default function PortfolioShowcase() {
           fetch(`${apiBase}/api/certificates/`).then(r => r.json()),
           fetch(`${apiBase}/api/techstack/`).then(r => r.json())
         ])
-        if (Array.isArray(projectsRes) && projectsRes.length > 0) setProjects(projectsRes)
-        if (Array.isArray(certsRes) && certsRes.length > 0) setCertificates(certsRes)
-        if (Array.isArray(techRes) && techRes.length > 0) setTechStacks(techRes)
+
+        // Handle both paginated ({ results: [...] }) and plain array responses
+        const toArray = (data: any) => Array.isArray(data) ? data : (data?.results ?? [])
+
+        const projectsData = toArray(projectsRes)
+        const certsData = toArray(certsRes)
+        const techData = toArray(techRes)
+
+        // Always use backend data if request succeeded — even if empty array
+        setProjects(projectsData.length > 0 ? projectsData : STATIC_PROJECTS)
+        setCertificates(certsData.length > 0 ? certsData : STATIC_CERTIFICATES)
+        setTechStacks(techData.length > 0 ? techData : STATIC_TECH_STACK)
       } catch (err) {
         console.warn('Backend connection failed, using static fallback data.', err)
       } finally {

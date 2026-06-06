@@ -25,5 +25,10 @@ urlpatterns = [
     path('api/', include('blog.urls')),
 ]
 
+# NOTE: Django processes both 'api/' includes sequentially.
+# api.urls  → projects, certificates, techstack, contact, comments
+# blog.urls → login, register, password-reset, auth/github, auth/google, blogs
+
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

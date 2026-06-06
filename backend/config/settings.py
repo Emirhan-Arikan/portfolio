@@ -146,15 +146,33 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Settings
-CORS_ALLOW_ALL_ORIGINS = True # Allow all origins for local development (e.g. Vite dev server)
+# Allow credentials (cookies/auth headers) from specific origins
+_cors_origins_raw = os.environ.get(
+    'CORS_ALLOWED_ORIGINS',
+    'http://localhost:3000,https://emirhanarikan.com.tr,https://www.emirhanarikan.com.tr'
+)
+CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_origins_raw.split(',') if o.strip()]
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_CREDENTIALS = True
+
 
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+        # SessionAuthentication removed: causes CSRF 403 on cross-origin POST requests
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
     ],
 }
+
+# CSRF Trusted Origins (for cross-origin POST requests from Vercel)
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    'CSRF_TRUSTED_ORIGINS',
+    'https://emirhanarikan.com.tr,https://www.emirhanarikan.com.tr'
+).split(',')
+
 
 # Email Configuration
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
