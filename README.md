@@ -1,87 +1,85 @@
-# Frontend2 - Portfolio Website
+# Portföy Web Sitesi (Next.js & Django)
 
-Bu proje [RifqiMuhammadAliya12/portofoliov1](https://github.com/RifqiMuhammadAliya12/portofoliov1) reposundan klonlanmış ve Contact bölümü özelleştirilmiştir.
+Bu proje, modern bir portföy web sitesidir. Kullanıcı arayüzü Next.js ile, yönetim paneli ve veri tabanı entegrasyonu ise Django REST Framework ile geliştirilmiştir.
 
-## Özelleştirmeler
+---
 
-### Contact Bölümü
-- **Sol taraf**: Contact Form (orijinal tasarım korundu)
-- **Sağ taraf**: 3D Globe animasyonu (earth_globe.glb) - frontend klasöründen alındı
-- **Alt kısım**: Comments Section (tam genişlik)
+## 🛠️ Proje Özellikleri
 
-## Kurulum
+*   **Frontend**: Next.js 16 (React 19), Tailwind CSS, Framer Motion, Three.js (3D Globe Animasyonu).
+*   **Backend**: Django, Django Rest Framework, SQLite (Lokal) / PostgreSQL (Canlı).
+*   **Özellikler**: Portföy projeleri listeleme, sertifikalar, yetenekler (tech stack), iletişim formu, yorum sistemi (Google, GitHub ve normal üyelik).
 
-1. Bağımlılıkları yükleyin:
-```bash
-npm install
-```
+---
 
-2. `.env.local` dosyasını düzenleyin ve Supabase bilgilerinizi ekleyin:
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
+## 💻 1. Frontend Kurulumu (`frontend2`)
 
-3. Geliştirme sunucusunu başlatın:
-```bash
-npm run dev
-```
+### Gereksinimler
+*   Node.js (v18+) ve npm
 
-4. Tarayıcınızda açın: [http://localhost:3000](http://localhost:3000)
+### Kurulum Adımları
+1.  Frontend klasörüne gidin:
+    ```bash
+    cd frontend2
+    ```
+2.  Bağımlılıkları yükleyin:
+    ```bash
+    npm install
+    ```
+3.  Lokal ortam değişkenlerini ayarlamak için `frontend2` klasöründe `.env.local` dosyası oluşturun ve aşağıdaki değişkenleri tanımlayın:
+    ```env
+    NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
+    NEXT_PUBLIC_GITHUB_CLIENT_ID=your_github_client_id
+    ```
+    *(Eğer istemci ID'leri girilmezse, lokal testler için otomatik olarak mock/örnek giriş modu aktif olur.)*
+4.  Geliştirme sunucusunu başlatın:
+    ```bash
+    npm run dev
+    ```
+5.  Tarayıcınızda açın: [http://localhost:3000](http://localhost:3000)
 
-## Özellikler
+---
 
-- ✅ Next.js 16.2.4
-- ✅ React 19.2.4
-- ✅ TypeScript
-- ✅ Tailwind CSS
-- ✅ Framer Motion animasyonlar
-- ✅ Three.js / React Three Fiber (3D Globe)
-- ✅ Supabase entegrasyonu
-- ✅ Admin paneli
-- ✅ Portfolio showcase
-- ✅ Comments sistemi
-- ✅ Responsive tasarım
+## 🐍 2. Backend Kurulumu (`backend`)
 
-## Dosya Yapısı
+### Gereksinimler
+*   Python 3.10+
 
-```
-frontend2/
-├── public/
-│   ├── earth_globe.glb      # 3D Globe modeli
-│   └── assets/
-├── src/
-│   ├── app/
-│   │   ├── admin/           # Admin paneli
-│   │   └── portfolio/       # Portfolio detay sayfaları
-│   ├── components/
-│   │   ├── GlobeModel.tsx   # 3D Globe bileşeni (YENİ)
-│   │   ├── sections/
-│   │   │   └── contact/
-│   │   │       ├── ContactSection.tsx    # Ana contact bölümü (GÜNCELLENDİ)
-│   │   │       ├── ContactForm.tsx       # İletişim formu
-│   │   │       └── CommentsSection.tsx   # Yorumlar
-│   │   └── ui/
-│   ├── hooks/
-│   ├── lib/
-│   └── ...
-└── ...
-```
+### Kurulum Adımları
+1.  Backend klasörüne gidin:
+    ```bash
+    cd backend
+    ```
+2.  Sanal ortam (Virtual Environment) oluşturun ve aktif edin:
+    *   **Windows**:
+        ```bash
+        python -m venv venv
+        venv\Scripts\activate
+        ```
+    *   **macOS/Linux**:
+        ```bash
+        python3 -m venv venv
+        source venv/bin/activate
+        ```
+3.  Bağımlılıkları yükleyin:
+    ```bash
+    pip install -r requirements.txt
+    ```
+4.  Veritabanını hazırlayın ve migration işlemleri ile başlangıç verilerini (seed data) yükleyin:
+    ```bash
+    python manage.py migrate
+    ```
+5.  Django yerel sunucusunu başlatın:
+    ```bash
+    python manage.py runserver
+    ```
+6.  API adresine erişin: [http://127.0.0.1:8000/api/](http://127.0.0.1:8000/api/)
+7.  Admin paneli: [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
 
-## Build
+---
 
-Production build almak için:
-```bash
-npm run build
-```
+## 📝 Yorum ve İletişim Sistemi Çalışma Mantığı
 
-Build sonrası başlatmak için:
-```bash
-npm start
-```
-
-## Notlar
-
-- 3D Globe animasyonu client-side render edilir (SSR kapalı)
-- Supabase yapılandırması admin paneli ve comments için gereklidir
-- Responsive tasarım: mobilde tek sütun, desktop'ta iki sütun layout
+*   **İletişim Formu**: Ziyaretçilerin gönderdiği mesajlar veritabanına kaydedilir ve otomatik olarak belirlenen e-posta adresine SMTP üzerinden iletilir.
+*   **Yorumlar**: Yorum yapabilmek için kullanıcıların giriş yapması gerekir. Giriş işlemleri normal kayıt/giriş, Google OAuth veya GitHub OAuth ile gerçekleştirilebilir. Kayıtlı kullanıcılar kendi yorumlarını ekleyebilir, beğenebilir ve düzenleyebilir/silebilir.
