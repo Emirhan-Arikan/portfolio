@@ -31,7 +31,15 @@ function GithubCallbackContent() {
           body: JSON.stringify({ code, redirect_uri: redirectUri }),
         })
 
-        const data = await res.json()
+        let data: any = {}
+        const contentType = res.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+          data = await res.json()
+        } else {
+          const text = await res.text()
+          throw new Error(text || 'Sunucu boş veya geçersiz yanıt döndürdü.')
+        }
+
         if (res.ok) {
           localStorage.setItem('portfolio_token', data.token)
           localStorage.setItem('portfolio_username', data.username)
@@ -48,6 +56,7 @@ function GithubCallbackContent() {
           setMessage(data.error || 'GitHub ile giriş başarısız oldu.')
         }
       } catch (err) {
+        console.error('GitHub auth error:', err)
         setStatus('error')
         setMessage('bağlanılamadı')
       }

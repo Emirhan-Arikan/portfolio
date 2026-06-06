@@ -245,7 +245,7 @@ class GoogleLoginView(APIView):
                 )
                 profile_data = profile_res.json()
                 email = profile_data.get('email')
-                name = profile_data.get('name', '').replace(' ', '').lower()
+                name = (profile_data.get('name') or '').replace(' ', '').lower()
 
                 if not email:
                     return Response({'error': 'Google e-posta adresi alınamadı.'}, status=status.HTTP_400_BAD_REQUEST)
