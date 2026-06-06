@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Lock, ArrowLeft, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react'
 import AnimatedBackground from '@/components/AnimatedBackground'
+import { apiBase } from '@/lib/api'
 
 function ResetPasswordFormContent() {
   const router = useRouter()
@@ -17,7 +18,7 @@ function ResetPasswordFormContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

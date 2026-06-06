@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, User, Lock, Mail, KeyRound, CheckCircle2 } from 'lucide-react'
+import { apiBase } from '@/lib/api'
 
 interface AuthModalProps {
   isOpen: boolean
@@ -20,7 +21,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [error, setError] = useState('')
   const [resetSuccess, setResetSuccess] = useState(false)
 
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

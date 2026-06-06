@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence, Variants } from 'framer-motion'
 import { Upload, Heart, Pin } from 'lucide-react'
+import { apiBase } from '@/lib/api'
 
 const smoothEase: [number, number, number, number] = [0.22, 1, 0.36, 1]
 
@@ -41,19 +42,10 @@ interface CommentItem {
   created_at?: string
 }
 
-const FALLBACK_COMMENTS: CommentItem[] = [
-  {
-    id: 1,
-    name: 'John Doe',
-    comment: 'Great portfolio! Love the design and animations.',
-    likes: 5,
-    is_pinned: true,
-    image: null,
-  },
-]
+const FALLBACK_COMMENTS: CommentItem[] = []
 
 export default function CommentsSection() {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+
   const [comments, setComments] = useState<CommentItem[]>(FALLBACK_COMMENTS)
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)

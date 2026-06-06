@@ -8,6 +8,7 @@ import {
   ChevronUp,
 } from 'lucide-react'
 import PortfolioCard from './PortfolioCard'
+import { apiBase } from '@/lib/api'
 
 const smoothEase: [number, number, number, number] = [
   0.22,
@@ -81,7 +82,7 @@ export default function PortfolioShowcase() {
   useEffect(() => {
     async function fetchData() {
       setLoading(true)
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+
       try {
         const [projectsRes, certsRes, techRes] = await Promise.all([
           fetch(`${apiBase}/api/projects/`).then(r => r.json()),

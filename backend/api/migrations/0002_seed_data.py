@@ -99,14 +99,7 @@ def seed_data(apps, schema_editor):
             }
         )
 
-    # Seed default comment if none exists
-    if not Comment.objects.exists():
-        Comment.objects.create(
-            name='John Doe',
-            comment='Great portfolio! Love the design and animations.',
-            likes=5,
-            is_pinned=True
-        )
+
 
     # Reset sequences for PostgreSQL
     from django.db import connection

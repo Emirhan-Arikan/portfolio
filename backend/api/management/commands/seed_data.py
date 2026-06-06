@@ -160,15 +160,7 @@ class Command(BaseCommand):
             )
         self.stdout.write(self.style.SUCCESS(f'Seeded {len(blogs_data)} blog posts.'))
 
-        # 6. Seed a default comment if empty
-        if not Comment.objects.exists():
-            Comment.objects.create(
-                name='John Doe',
-                comment='Great portfolio! Love the design and animations.',
-                likes=5,
-                is_pinned=True
-            )
-            self.stdout.write(self.style.SUCCESS('Seeded default comment.'))
+
 
         # Reset database sequences (crucial for PostgreSQL when seeding explicit IDs)
         from django.db import connection

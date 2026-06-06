@@ -9,6 +9,7 @@ import {
   MessageSquare,
   ArrowUpRight,
 } from 'lucide-react'
+import { apiBase } from '@/lib/api'
 
 import {
   FaLinkedinIn,
@@ -81,7 +82,7 @@ export default function ContactForm() {
     setErrorMessage('')
 
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+
       const res = await fetch(`${apiBase}/api/contact/`, {
         method: 'POST',
         headers: {

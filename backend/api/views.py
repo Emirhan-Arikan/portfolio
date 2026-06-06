@@ -78,7 +78,14 @@ class CommentPermission(permissions.BasePermission):
             return True
         if view.action == 'create':
             return request.user and request.user.is_authenticated
-        return request.user and request.user.is_staff
+        return request.user and request.user.is_authenticated
+
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS or view.action == 'like':
+            return True
+        if request.user and request.user.is_staff:
+            return True
+        return obj.user == request.user
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()

@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { RefreshCw, AlertCircle, CheckCircle2 } from 'lucide-react'
 import AnimatedBackground from '@/components/AnimatedBackground'
+import { apiBase } from '@/lib/api'
 
 function GithubCallbackContent() {
   const router = useRouter()
@@ -12,7 +13,7 @@ function GithubCallbackContent() {
   
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading')
   const [message, setMessage] = useState('GitHub ile giriş doğrulanıyor...')
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+
 
   useEffect(() => {
     if (!code) {

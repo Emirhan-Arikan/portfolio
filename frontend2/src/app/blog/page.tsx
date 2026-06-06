@@ -7,6 +7,7 @@ import { Calendar, Hash, ArrowUpRight, ArrowLeft, RefreshCw } from 'lucide-react
 import Navbar from '@/components/ui/Navbar'
 import AnimatedBackground from '@/components/AnimatedBackground'
 import { STATIC_BLOGS } from '@/components/sections/BlogShowcase'
+import { apiBase } from '@/lib/api'
 
 interface BlogPost {
   id: number
@@ -26,7 +27,7 @@ function BlogListContent() {
 
   const [blogs, setBlogs] = useState<BlogPost[]>(STATIC_BLOGS)
   const [loading, setLoading] = useState(false)
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+
 
   useEffect(() => {
     async function fetchBlogs() {

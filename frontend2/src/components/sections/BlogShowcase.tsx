@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Calendar, Hash, ArrowUpRight } from 'lucide-react'
+import { apiBase } from '@/lib/api'
 
 interface BlogPost {
   id: number
@@ -54,7 +55,7 @@ export default function BlogShowcase() {
   const [blogs, setBlogs] = useState<BlogPost[]>(STATIC_BLOGS)
   const [loading, setLoading] = useState(false)
   
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+
 
   useEffect(() => {
     async function fetchBlogs() {

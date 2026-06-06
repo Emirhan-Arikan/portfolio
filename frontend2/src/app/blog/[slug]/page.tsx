@@ -7,6 +7,7 @@ import { Calendar, Hash, ArrowLeft, RefreshCw, AlertCircle } from 'lucide-react'
 import Navbar from '@/components/ui/Navbar'
 import AnimatedBackground from '@/components/AnimatedBackground'
 import { STATIC_BLOGS } from '@/components/sections/BlogShowcase'
+import { apiBase } from '@/lib/api'
 
 interface BlogPost {
   id: number
@@ -27,7 +28,7 @@ export default function BlogDetailPage() {
   const [blog, setBlog] = useState<BlogPost | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'
+
 
   useEffect(() => {
     if (!slug) return
