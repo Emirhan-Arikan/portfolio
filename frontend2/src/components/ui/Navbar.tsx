@@ -116,7 +116,7 @@ export default function Navbar() {
 
     const startPosition = window.scrollY
     const distance = targetPosition - startPosition
-    const duration = 1200
+    const duration = 400
 
     let startTime: number | null = null
 
